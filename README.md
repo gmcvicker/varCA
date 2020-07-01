@@ -2,9 +2,9 @@
 [![License](https://img.shields.io/apm/l/vim-mode.svg)](LICENSE)
 
 # varCA
-A pipeline for running an ensemble of variant callers to predict variants in ATAC-seq reads.
+varCA is a pipeline for running an ensemble of variant callers to predict variants from ATAC-seq reads.
 
-The entire pipeline is made up of two smaller subworkflows. The `prepare` subworkflow calls each variant caller and prepares the resulting data for use by the `classify` subworkflow, which runs the ensemble classifier to predict the existence of variants at each site.
+The entire pipeline is made up of two smaller subworkflows. The `prepare` subworkflow calls each variant caller and prepares the resulting data for use by the `classify` subworkflow. The `classify` subworkflow runs a random forest classifier to predict the existence of variants at each site.
 
 # Download
 Execute the following command or download the [latest release](https://github.com/aryam7/varCA/releases/latest) manually.
@@ -18,9 +18,9 @@ wget -O- -q https://github.com/aryam7/varCA/releases/latest/download/data.tar.gz
 ```
 
 # Setup
-We highly recommend you install [Snakemake via conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda) so that you can use the `--use-conda` flag when calling `snakemake` to let it automatically handle all dependencies of the pipeline. Otherwise, you must manually install the dependencies listed in the [env files](envs).
+We recommend you install [Snakemake via conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda) so that you can use the `--use-conda` flag when calling `snakemake`. The `--use-conda` flag allows Snakemake to automatically handle all of the dependencies of the pipeline. Otherwise, you must manually install the dependencies listed in the [env files](envs).
 
-We recommend installing version 5.18.0
+We recommend installing Snakemake version 5.18.0
 ```
 conda create -n snakemake -c bioconda -c conda-forge 'snakemake==5.18.0'
 ```
@@ -41,14 +41,14 @@ conda create -n snakemake -c bioconda -c conda-forge 'snakemake==5.18.0'
     ./run.bash --sge-cluster &
     ```
 
-The pipeline is written as a Snakefile, so it must be executed via [Snakemake](https://snakemake.readthedocs.io). If you want to execute the pipeline on your own data, you must provide [required input in the config.yaml file](configs#configyaml) before executing. This config file is currently configured to run the pipeline on the example data provided.
+The pipeline is written as a Snakefile that is run by [Snakemake](https://snakemake.readthedocs.io). If you want to run the pipeline on your own data, you must modify the [config.yaml file](configs#configyaml). This config file is currently setup to run the pipeline on the example data provided.
 
-The pipeline is made up of [two subworkflows](rules), which can each be executed separately from the master pipeline for more advanced usage. See the [rules README](rules/README.md) for execution instructions. You will need to execute the subworkflows separately [if you ever need to create your own trained models](rules#creating-your-own-trained-model).
+The pipeline is made up of [two subworkflows](rules), which can each be executed separately from the master pipeline for more advanced usage. See the [rules README](rules/README.md) for execution instructions. You will need to run the subworkflows separately [if you ever need to create your own trained models](rules#creating-your-own-trained-model).
 
-### If this is your first time using Snakemake
-We highly recommend that you run `snakemake --help` to learn about all of the options available to you. You might discover, for example, that calling Snakemake with the `-n -p -r` flags can be a helpful way to check that the pipeline will be executed correctly before you run it. This can also be a good way to familiarize yourself with the steps of the pipeline and their inputs and outputs (the latter of which are inputs to the first rule in each workflow -- ie the `all` rule).
+### Using Snakemake
+We recommend that you run `snakemake --help` to learn about Snakemake's options. Calling Snakemake with the `-n -p -r` flags is a helpful way to check that the pipeline will be executed correctly before you run it. This is also a good way to familiarize yourself with the steps of the pipeline and their inputs and outputs.
 
-Another important thing to know is that Snakemake will not recreate output that it has already generated, unless you request it. If a job fails or is interrupted, subsequent executions of Snakemake will just pick up where it left off. This can also apply to files that *you* create and provide in place of the files it would have generated.
+Note that Snakemake will not recreate output that it has already generated, unless you request it. If a job fails or is interrupted, subsequent executions of Snakemake will pick up where it left off. This can also apply to files that *you* create and provide in place of the files it would have generated.
 
 By default, the pipeline will automatically delete some files it deems unnecessary (ex: unsorted copies of a BAM). You can opt to keep these files instead by providing the `--notemp` flag to Snakemake when executing the pipeline.
 
